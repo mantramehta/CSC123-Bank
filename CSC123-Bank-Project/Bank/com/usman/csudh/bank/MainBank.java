@@ -1,4 +1,5 @@
 package com.usman.csudh.bank;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,6 +9,8 @@ import com.usman.csudh.bank.core.AccountClosedException;
 import com.usman.csudh.bank.core.Bank;
 import com.usman.csudh.bank.core.InsufficientBalanceException;
 import com.usman.csudh.bank.core.NoSuchAccountException;
+import com.usman.csudh.bank.core.USDNotFoundException;
+import com.usman.csudh.bank.core.ExchangeRateException;
 import com.usman.csudh.util.UIManager;
 
 public class MainBank {
@@ -26,11 +29,15 @@ public class MainBank {
 	public static final String MSG_AMOUNT = "Enter amount: ";
 	public static final String MSG_ACCOUNT_NUMBER = "Enter account number: ";
 	public static final String MSG_ACCOUNT_ACTION = "%n%s was %s, account balance is: %s%n%n";
-	
+	public static final String MSG_SELLING_CURRENCY = "The currency you are selling :";
+	public static final String MSG_BUYING_CURRENCY = "The currency you are buying :";
+	public static final String MSG_CURRENCY_AMOUNT = "The amount you are selling :";
+	public static final String MSG_CC_OUTPUT = "%n%nThe exchange rate is %s and you will get %s %s%n%n";
+	public static final String MSG_ACCOUNT_CURRENCY = "%n%nAccount Currency: ";
 
 	//Declare main menu and prompt to accept user input
-	public static final String[] menuOptions = { "Open Checking Account%n","Open Saving Account%n", "List Accounts%n","View Statement%n", "Deposit Funds%n", "Withdraw Funds%n",
-			"Close an Account%n", "Exit%n" };
+	public static final String[] menuOptions = { "Open Checking Account%n","Open Saving Account%n", "List Accounts%n","Account Statement%n","Show Account Information%n", "Deposit Funds%n", "Withdraw Funds%n",
+			"Currency conversion%n","Close an Account%n", "Exit%n" };
 	public static final String MSG_PROMPT = "%nEnter choice: ";
 
 	
@@ -50,6 +57,7 @@ public class MainBank {
 	public static void main(String[] args) {
 
 		new MainBank(System.in,System.out).run();
+		//new Bank().fileread();
 
 	}
 	
@@ -59,6 +67,16 @@ public class MainBank {
 
 		Account acc;
 		int option = 0;
+		boolean RateOn = false;
+		String FN, LN, SSN, Cur;
+		double OD;
+		File file = new File("C:\\Users\\Mantra\\eclipse-workspace\\JavaProjects\\exchange-rate.csv");
+		if(!file.exists()) {
+			System.out.print("Currency file could not be loaded, Currency conversion service and Foreign currency accounts are not available\n\n");
+		}else {
+			Bank.SaveCurrency();
+			RateOn = true;
+		}
 
 		UIManager ui = new UIManager(this.in,this.out,menuOptions,MSG_PROMPT);
 		try {
@@ -68,22 +86,52 @@ public class MainBank {
 
 				switch (option) {
 				case 1:
-					
-					
 					//Compact statement to accept user input, open account, and print the result including the account number
+					 FN = ui.readToken(MSG_FIRST_NAME);
+					 LN = ui.readToken(MSG_LAST_NAME);
+					 SSN = ui.readToken(MSG_SSN);
+					 OD = ui.readDouble(MSG_ACCOUNT_OD_LIMIT);
+					if(RateOn) {
+						 Cur = ui.readToken(MSG_ACCOUNT_CURRENCY);
+						 boolean Bool = true;
+						 while(Bool){
+							if(Bank.ValidCur(Cur)) {
+								Bool = false;
+							}else {
+								Cur = ui.readToken(MSG_ACCOUNT_CURRENCY);
+							}
+						}
+					}else {
+						Cur = "USD";
+					}
 					ui.print(MSG_ACCOUNT_OPENED,
-							new Object[] { Bank.openCheckingAccount(ui.readToken(MSG_FIRST_NAME),
-									ui.readToken(MSG_LAST_NAME), ui.readToken(MSG_SSN),
-									ui.readDouble(MSG_ACCOUNT_OD_LIMIT)).getAccountNumber() });
+							new Object[] { Bank.openCheckingAccount(FN,
+									LN, SSN,
+									OD,Cur).getAccountNumber() });
 					break;
 				case 2:
 					
 					//Compact statement to accept user input, open account, and print the result including the account number
+					 FN = ui.readToken(MSG_FIRST_NAME);
+					 LN = ui.readToken(MSG_LAST_NAME);
+					 SSN = ui.readToken(MSG_SSN);
+					if(RateOn) {
+						 Cur = ui.readToken(MSG_ACCOUNT_CURRENCY);
+						 boolean Bool = true;
+						 while(Bool){
+							if(Bank.ValidCur(Cur)) {
+								Bool = false;
+							}else {
+								Cur = ui.readToken(MSG_ACCOUNT_CURRENCY);
+							}
+						}
+					}else {
+						Cur = "USD";
+					}
 					ui.print(MSG_ACCOUNT_OPENED,
-							new Object[] { Bank
-									.openSavingAccount(ui.readToken(MSG_FIRST_NAME),
-											ui.readToken(MSG_LAST_NAME), ui.readToken(MSG_SSN))
-									.getAccountNumber() });
+							new Object[] { Bank.openSavingAccount(FN,
+									LN, SSN,
+									Cur).getAccountNumber() });
 					break;
 
 				case 3:
@@ -103,8 +151,18 @@ public class MainBank {
 					}		
 					
 					break;
-
 				case 5:
+					
+					try {
+						Bank.printAccontDetail(ui.readInt(MSG_ACCOUNT_NUMBER),this.out);
+					} catch (NoSuchAccountException e1) {
+						this.handleException(ui, e1);
+
+					}		
+					
+					break;
+
+				case 6:
 					//find account, deposit money and print result
 					
 					try {
@@ -118,7 +176,7 @@ public class MainBank {
 					}
 					break;
 					
-				case 6:
+				case 7:
 					//find account, withdraw money and print result
 					try {
 						int accountNumber=ui.readInt(MSG_ACCOUNT_NUMBER);
@@ -131,11 +189,21 @@ public class MainBank {
 
 					}
 					break;
+					
+				case 8:
+					try {
+						String BUYING_CURRENCY=ui.readToken(MSG_BUYING_CURRENCY);
+						double Amount = ui.readDouble(MSG_CURRENCY_AMOUNT);
+						String SELLING_CURRENCY=ui.readToken(MSG_SELLING_CURRENCY);
+						ui.print(MSG_CC_OUTPUT , Bank.currencyConversion(BUYING_CURRENCY,Amount,SELLING_CURRENCY));
+					}
+					catch(USDNotFoundException | ExchangeRateException e) {
+						this.handleException(ui, e);
 
-				case 7:
+					}
+					break;
+				case 9:
 					//find account and close it
-					
-					
 					try {
 						int accountNumber=ui.readInt(MSG_ACCOUNT_NUMBER);
 						Bank.closeAccount(accountNumber);
@@ -147,7 +215,6 @@ public class MainBank {
 
 					}
 					break;
-				
 				}
 
 			} while (option != menuOptions.length);

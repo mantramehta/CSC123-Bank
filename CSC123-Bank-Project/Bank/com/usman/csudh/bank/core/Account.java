@@ -6,6 +6,10 @@ import java.util.ArrayList;
 
 import com.usman.csudh.util.UniqueCounter;
 
+/**
+ * @author Mantra
+ *
+ */
 public class Account implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -15,12 +19,14 @@ public class Account implements Serializable {
 	
 	private boolean open=true;
 	private int accountNumber;
+	String Currency;
 
-	protected Account(String name, Customer customer) {
+	public Account(String name, Customer customer, String Cur) {
 		accountName=name;
 		accountHolder=customer;
 		transactions=new ArrayList<Transaction>();
 		accountNumber=UniqueCounter.nextValue();
+		Currency = Cur;
 	}
 	
 	public String getAccountName() {
@@ -80,7 +86,7 @@ public class Account implements Serializable {
 	}
 
 	public String toString() {
-		String aName=accountNumber+"("+accountName+")"+" : "+accountHolder.toString()+ " : "+getBalance()+" : "+(open?"Account Open":"Account Closed");
+		String aName=accountNumber+"("+accountName+")"+" : "+accountHolder.toString()+ " : "+ Currency +" : "+getBalance()+" : "+ getBalance()*Bank.Rate(Currency)+ " : "+(open?"Account Open":"Account Closed");
 		return aName;
 	}
 	 
@@ -97,5 +103,10 @@ public class Account implements Serializable {
 		out.write(("Balance: "+getBalance()+"\n\n\n").getBytes());
 		out.flush();
 		
+	}
+	
+	public void printDetail(OutputStream out) throws IOException {
+		out.write(("\nAccount Number: "+accountNumber+"\n"+"Name: "+accountHolder.getFirstName()+" "+accountHolder.getLastName() +"\n"+"SSN: "+accountHolder.getSSN()+"\n"+"Currency: "+Currency+"\n"+"Currency Balance: "+getBalance()+"\n"+"USD Balance: "+ getBalance()*Bank.Rate(Currency)+"\n\n").getBytes());
+		out.flush();
 	}
 }

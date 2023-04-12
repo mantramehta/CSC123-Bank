@@ -1,9 +1,8 @@
 package com.usman.csudh.bank.core;
 public class SavingAccount extends Account{
 	private static final long serialVersionUID = 1L;
-
-	public SavingAccount(Customer customer) {
-		super("Saving", customer);
+	public SavingAccount(Customer customer, String Cur) {
+		super("Saving", customer, Cur);
 	}
 
 

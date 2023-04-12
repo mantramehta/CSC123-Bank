@@ -40,7 +40,6 @@ public class Customer implements Serializable{
 		setFirstName(fName);
 		setLastName(lName);
 		setSSN(ssn);
-		
 	}
 	
 	public Customer() {}
