@@ -54,7 +54,7 @@ public class Bank {
 		// create a TreeMap to store the exchange rates
 	       try {
 	           // read the exchange-rate.csv file
-	           BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\Mantra\\eclipse-workspace\\JavaProjects\\exchange-rate.csv"));
+	           BufferedReader reader = new BufferedReader(new FileReader("exchange-rate.csv"));
 	           String line = reader.readLine();
 	           while (line != null) {
 	               // split each line by comma

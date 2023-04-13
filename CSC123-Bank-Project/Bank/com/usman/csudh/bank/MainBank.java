@@ -70,7 +70,7 @@ public class MainBank {
 		boolean RateOn = false;
 		String FN, LN, SSN, Cur;
 		double OD;
-		File file = new File("C:\\Users\\Mantra\\eclipse-workspace\\JavaProjects\\exchange-rate.csv");
+		File file = new File("exchange-rate.csv"); //C:\\Users\\Mantra\\eclipse-workspace\\JavaProjects
 		if(!file.exists()) {
 			System.out.print("Currency file could not be loaded, Currency conversion service and Foreign currency accounts are not available\n\n");
 		}else {
