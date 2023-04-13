@@ -1,4 +1,4 @@
-package com.usman.csudh.bank.core;
+package com.usman.csudh.bank.core; 
 import java.io.Serializable;
 
 import com.usman.csudh.util.UniqueCounter;

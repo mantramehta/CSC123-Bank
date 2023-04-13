@@ -1,5 +1,8 @@
 package com.usman.csudh.bank.core;
-public class ExchangeRate {
+
+import java.io.Serializable;
+
+public class ExchangeRate implements Serializable{
     private String name;
     private double rate; 
 
