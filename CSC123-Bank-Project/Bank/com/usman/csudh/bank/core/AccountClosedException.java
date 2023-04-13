@@ -3,7 +3,7 @@ package com.usman.csudh.bank.core;
 public class AccountClosedException extends Exception {
 
 	public AccountClosedException() {
-		// TODO Auto-generated constructor stub
+		// TODO Auto-generated constructor stub  
 	}
 
 	public AccountClosedException(String message) {

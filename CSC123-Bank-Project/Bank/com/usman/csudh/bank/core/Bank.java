@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class Bank {
+public class Bank { 
 	
 	private static Map<Integer,Account> accounts=new TreeMap<Integer,Account>();
 	private static TreeMap<String, ExchangeRate> exchangeRates = new TreeMap<>();

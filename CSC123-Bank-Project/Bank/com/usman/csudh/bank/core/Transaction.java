@@ -6,7 +6,7 @@ import com.usman.csudh.util.UniqueCounter;
 public class Transaction implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	public static final char CREDIT='C';
+	public static final char CREDIT='C'; 
 	public static final char DEBIT='D';
 	
 	int txnID;

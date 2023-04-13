@@ -3,7 +3,7 @@ package com.usman.csudh.bank.core;
  * 1 - IMPORTS  *
  ***********************/
 
-import java.io.Serializable;
+import java.io.Serializable; 
 
 
 /**********************************

@@ -1,7 +1,7 @@
 package com.usman.csudh.bank.core;
 public class ExchangeRate {
     private String name;
-    private double rate;
+    private double rate; 
 
     public ExchangeRate(String name, double rate) {
         this.name = name;

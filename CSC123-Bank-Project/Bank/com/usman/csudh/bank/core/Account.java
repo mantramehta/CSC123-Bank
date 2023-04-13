@@ -13,7 +13,7 @@ import com.usman.csudh.util.UniqueCounter;
 public class Account implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	private String accountName;
+	private String accountName;                                             
 	private Customer accountHolder;
 	private ArrayList<Transaction> transactions;
 	
