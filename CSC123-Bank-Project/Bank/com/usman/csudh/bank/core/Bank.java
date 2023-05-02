@@ -1,8 +1,10 @@
 package com.usman.csudh.bank.core; 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
@@ -11,7 +13,6 @@ public class Bank {
 	
 	private static Map<Integer,Account> accounts=new TreeMap<Integer,Account>();
 	private static TreeMap<String, ExchangeRate> exchangeRates = new TreeMap<>();
-	
 	
 	
 	public static Account openCheckingAccount(String firstName, String lastName, String ssn, double overdraftLimit,String Currency) {
@@ -51,30 +52,32 @@ public class Bank {
 	}
 	
 	public static void SaveCurrency() {
-		// create a TreeMap to store the exchange rates
-	       try {
-	           // read the exchange-rate.csv file
-	           BufferedReader reader = new BufferedReader(new FileReader("exchange-rate.csv"));
-	           String line = reader.readLine();
-	           while (line != null) {
-	               // split each line by comma
-	               String[] parts = line.split(",");
-	               String currencyCode = parts[0];
-	               String currencyName = parts[1];
-	               // parse the exchange rate value as a Double
-	               Double rate = Double.parseDouble(parts[2]);
+		        // create an instance of HttpClient
+		        HttpClient client = HttpClient.newHttpClient();
 
-	               // create a new Currency object and put it into the TreeMap
-	               ExchangeRate currency = new ExchangeRate(currencyName, rate);
-	               exchangeRates.put(currencyCode, currency);
-	               line = reader.readLine();
-	           }
-	           reader.close();
-	           }catch (IOException e) {
-	               e.printStackTrace();
-	           }
+		        // create a request to the exchange-rate.csv file
+		        HttpRequest request = HttpRequest.newBuilder()
+		                .uri(URI.create("http://www.usman.cloud/banking/exchange-rate.csv"))
+		                .build();
+
+		        // send the request and process the response
+		        try {
+		            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+		            String body = response.body();
+		            String[] lines = body.split("\n");
+
+		            for (String line : lines) {
+		                String[] parts = line.split(",");
+		                String currencyCode = parts[0];
+		                String currencyName = parts[1];
+		                Double rate = Double.parseDouble(parts[2]);
+		                ExchangeRate currency = new ExchangeRate(currencyName, rate);
+		                exchangeRates.put(currencyCode, currency);
+		            }
+		        } catch (IOException | InterruptedException e) {
+		            e.printStackTrace();
+		        }
 	}
-	
 	public static Object[] currencyConversion(String buyingCurrency, double amount, String sellingCurrency)throws USDNotFoundException, ExchangeRateException {
    
 		double finalAmt=0, Erate = 0;

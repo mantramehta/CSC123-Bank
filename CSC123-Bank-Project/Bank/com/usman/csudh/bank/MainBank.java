@@ -1,12 +1,12 @@
 package com.usman.csudh.bank; 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
+import java.util.TreeMap;
 import com.usman.csudh.bank.core.Account;
 import com.usman.csudh.bank.core.AccountClosedException;
 import com.usman.csudh.bank.core.Bank;
+import com.usman.csudh.bank.core.ExchangeRate;
 import com.usman.csudh.bank.core.InsufficientBalanceException;
 import com.usman.csudh.bank.core.NoSuchAccountException;
 import com.usman.csudh.bank.core.USDNotFoundException;
@@ -34,7 +34,7 @@ public class MainBank {
 	public static final String MSG_CURRENCY_AMOUNT = "The amount you are selling :";
 	public static final String MSG_CC_OUTPUT = "%n%nThe exchange rate is %s and you will get %s %s%n%n";
 	public static final String MSG_ACCOUNT_CURRENCY = "%n%nAccount Currency: ";
-
+	private static TreeMap<String, ExchangeRate> exchangeRates = new TreeMap<>();
 	//Declare main menu and prompt to accept user input
 	public static final String[] menuOptions = { "Open Checking Account%n","Open Saving Account%n", "List Accounts%n","Account Statement%n","Show Account Information%n", "Deposit Funds%n", "Withdraw Funds%n",
 			"Currency conversion%n","Close an Account%n", "Exit%n" };
@@ -65,13 +65,12 @@ public class MainBank {
 	//The core of the program responsible for providing user experience.
 	public void run() {
 
-		Account acc;
+	//	Account acc;
 		int option = 0;
 		boolean RateOn = false;
 		String FN, LN, SSN, Cur;
 		double OD;
-		File file = new File("exchange-rate.csv"); //C:\\Users\\Mantra\\eclipse-workspace\\JavaProjects
-		if(!file.exists()) {
+		if(exchangeRates == null) {
 			System.out.print("Currency file could not be loaded, Currency conversion service and Foreign currency accounts are not available\n\n");
 		}else {
 			Bank.SaveCurrency();
