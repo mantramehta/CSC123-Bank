@@ -1,27 +1,27 @@
-package com.usman.csudh.bank; 
+package com.usman.csudh.bank;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.TreeMap;
-import com.usman.csudh.bank.core.Account;
 import com.usman.csudh.bank.core.AccountClosedException;
 import com.usman.csudh.bank.core.Bank;
-import com.usman.csudh.bank.core.ExchangeRate;
 import com.usman.csudh.bank.core.InsufficientBalanceException;
 import com.usman.csudh.bank.core.NoSuchAccountException;
 import com.usman.csudh.bank.core.USDNotFoundException;
 import com.usman.csudh.bank.core.ExchangeRateException;
 import com.usman.csudh.util.UIManager;
+import com.usman.csudh.bank.core.Configuration;
+import com.usman.csudh.bank.core.CSVReader;
 
 public class MainBank {
-
-	//All messages are declared as constants to make it easier to change. Also, to ensure future proofing in case the application need to be made available
-	//in more than one languages
+	// All messages are declared as constants to make it easier to change. Also, to
+	// ensure future proofing in case the application need to be made available
+	// in more than one languages
 	public static final String MSG_ACCOUNT_OPENED = "%nAccount opened, account number is: %s%n%n";
 	public static final String MSG_ACCOUNT_CLOSED = "%nAccount number %s has been closed, balance is %s%n%n";
 	public static final String MSG_ACCOUNT_NOT_FOUND = "%nAccount number %s not found! %n%n";
 	public static final String MSG_FIRST_NAME = "Enter first name:  ";
-	public static final String MSG_LAST_NAME = "Enter last name:  ";    
+	public static final String MSG_LAST_NAME = "Enter last name:  ";
 	public static final String MSG_SSN = "Enter Social Security Number:  ";
 	public static final String MSG_ACCOUNT_NAME = "Enter account name:  ";
 	public static final String MSG_ACCOUNT_OD_LIMIT = "Enter overdraft limit:  ";
@@ -34,200 +34,175 @@ public class MainBank {
 	public static final String MSG_CURRENCY_AMOUNT = "The amount you are selling :";
 	public static final String MSG_CC_OUTPUT = "%n%nThe exchange rate is %s and you will get %s %s%n%n";
 	public static final String MSG_ACCOUNT_CURRENCY = "%n%nAccount Currency: ";
-	private static TreeMap<String, ExchangeRate> exchangeRates = new TreeMap<>();
-	//Declare main menu and prompt to accept user input
-	public static final String[] menuOptions = { "Open Checking Account%n","Open Saving Account%n", "List Accounts%n","Account Statement%n","Show Account Information%n", "Deposit Funds%n", "Withdraw Funds%n",
-			"Currency conversion%n","Close an Account%n", "Exit%n" };
+	// Declare main menu and prompt to accept user input
+	public static final String[] menuOptions = { "Open Checking Account%n", "Open Saving Account%n", "List Accounts%n",
+			"Account Statement%n", "Show Account Information%n", "Deposit Funds%n", "Withdraw Funds%n",
+			"Currency conversion%n", "Close an Account%n", "Exit%n" };
 	public static final String MSG_PROMPT = "%nEnter choice: ";
-
-	
-	//Declare streams to accept user input / provide output
+	// Declare streams to accept user input / provide output
 	InputStream in;
 	OutputStream out;
-	
-	
-	//Constructor
+
+	// Constructor
 	public MainBank(InputStream in, OutputStream out) {
-		this.in=in;
-		this.out=out;
+		this.in = in;
+		this.out = out;
 	}
-	
-	
-	//Main method. 
-	public static void main(String[] args) {
 
-		new MainBank(System.in,System.out).run();
-		//new Bank().fileread();
-
+	// Main method.
+	public static void main(String[] args) throws Exception {
+		new MainBank(System.in, System.out).run();
 	}
-	
-	
-	//The core of the program responsible for providing user experience.
-	public void run() {
 
-	//	Account acc;
+	// The core of the program responsible for providing user experience.
+	public void run() throws Exception {
 		int option = 0;
-		boolean RateOn = false;
 		String FN, LN, SSN, Cur;
 		double OD;
-		if(exchangeRates == null) {
-			System.out.print("Currency file could not be loaded, Currency conversion service and Foreign currency accounts are not available\n\n");
-		}else {
-			Bank.SaveCurrency();
-			RateOn = true;
+		Configuration configuration = Configuration.getInstance();
+		boolean Rateon = configuration.useCurrencies();
+		// Now you can use the value of useCurrencies as needed
+		if (Rateon) {
+			Bank.SaveCurrency(CSVReader
+					.newCSVReader(configuration.getValue("currencies.source"), configuration.getValue("currency.file"),
+							configuration.getValue("webservice.url"), configuration.getValue("rest.url"))
+					.readData());
+		} else {
+			System.out.print(
+					"Currency support feature is not set as true so, currency conversion service and foreign currency accounts are not available\n\n");
 		}
-
-		UIManager ui = new UIManager(this.in,this.out,menuOptions,MSG_PROMPT);
+		UIManager ui = new UIManager(this.in, this.out, menuOptions, MSG_PROMPT);
 		try {
-
 			do {
-				option = ui.getMainOption(); //Render main menu
-
+				option = ui.getMainOption(); // Render main menu
 				switch (option) {
 				case 1:
-					//Compact statement to accept user input, open account, and print the result including the account number
-					 FN = ui.readToken(MSG_FIRST_NAME);
-					 LN = ui.readToken(MSG_LAST_NAME);
-					 SSN = ui.readToken(MSG_SSN);
-					 OD = ui.readDouble(MSG_ACCOUNT_OD_LIMIT);
-					if(RateOn) {
-						 Cur = ui.readToken(MSG_ACCOUNT_CURRENCY);
-						 boolean Bool = true;
-						 while(Bool){
-							if(Bank.ValidCur(Cur)) {
+					// Compact statement to accept user input, open account, and print the result
+					// including the account number
+					FN = ui.readToken(MSG_FIRST_NAME);
+					LN = ui.readToken(MSG_LAST_NAME);
+					SSN = ui.readToken(MSG_SSN);
+					OD = ui.readDouble(MSG_ACCOUNT_OD_LIMIT);
+					if (Rateon) {
+						Cur = ui.readToken(MSG_ACCOUNT_CURRENCY);
+						boolean Bool = true;
+						while (Bool) {
+							if (Bank.ValidCur(Cur)) {
 								Bool = false;
-							}else {
+							} else {
 								Cur = ui.readToken(MSG_ACCOUNT_CURRENCY);
 							}
 						}
-					}else {
+					} else {
 						Cur = "USD";
 					}
 					ui.print(MSG_ACCOUNT_OPENED,
-							new Object[] { Bank.openCheckingAccount(FN,
-									LN, SSN,
-									OD,Cur).getAccountNumber() });
+							new Object[] { Bank.openCheckingAccount(FN, LN, SSN, OD, Cur).getAccountNumber() });
 					break;
 				case 2:
-					
-					//Compact statement to accept user input, open account, and print the result including the account number
-					 FN = ui.readToken(MSG_FIRST_NAME);
-					 LN = ui.readToken(MSG_LAST_NAME);
-					 SSN = ui.readToken(MSG_SSN);
-					if(RateOn) {
-						 Cur = ui.readToken(MSG_ACCOUNT_CURRENCY);
-						 boolean Bool = true;
-						 while(Bool){
-							if(Bank.ValidCur(Cur)) {
+					// Compact statement to accept user input, open account, and print the result
+					// including the account number
+					FN = ui.readToken(MSG_FIRST_NAME);
+					LN = ui.readToken(MSG_LAST_NAME);
+					SSN = ui.readToken(MSG_SSN);
+					if (Rateon) {
+						Cur = ui.readToken(MSG_ACCOUNT_CURRENCY);
+						boolean Bool = true;
+						while (Bool) {
+							if (Bank.ValidCur(Cur)) {
 								Bool = false;
-							}else {
+							} else {
 								Cur = ui.readToken(MSG_ACCOUNT_CURRENCY);
 							}
 						}
-					}else {
+					} else {
 						Cur = "USD";
 					}
 					ui.print(MSG_ACCOUNT_OPENED,
-							new Object[] { Bank.openSavingAccount(FN,
-									LN, SSN,
-									Cur).getAccountNumber() });
+							new Object[] { Bank.openSavingAccount(FN, LN, SSN, Cur).getAccountNumber() });
 					break;
-
 				case 3:
-					
-					//Get bank to print list of accounts to the output stream provided as method arguemnt
+					// Get bank to print list of accounts to the output stream provided as method
+					// arguemnt
 					Bank.listAccounts(this.out);
 					break;
-					
+
 				case 4:
-					
-					//find account and get the account to print transactions to the  output stream provided in method arguments
+					// find account and get the account to print transactions to the output stream
+					// provided in method arguments
 					try {
-						Bank.printAccountTransactions(ui.readInt(MSG_ACCOUNT_NUMBER),this.out);
+						Bank.printAccountTransactions(ui.readInt(MSG_ACCOUNT_NUMBER), this.out);
 					} catch (NoSuchAccountException e1) {
 						this.handleException(ui, e1);
 
-					}		
-					
+					}
+
 					break;
 				case 5:
-					
+					// To show Account information
 					try {
-						Bank.printAccontDetail(ui.readInt(MSG_ACCOUNT_NUMBER),this.out);
+						Bank.printAccontDetail(ui.readInt(MSG_ACCOUNT_NUMBER), this.out);
 					} catch (NoSuchAccountException e1) {
 						this.handleException(ui, e1);
-
-					}		
-					
+					}
 					break;
-
 				case 6:
-					//find account, deposit money and print result
-					
+					// find account, deposit money and print result
+
 					try {
-						int accountNumber=ui.readInt(MSG_ACCOUNT_NUMBER);
+						int accountNumber = ui.readInt(MSG_ACCOUNT_NUMBER);
 						Bank.makeDeposit(accountNumber, ui.readDouble(MSG_AMOUNT));
-						ui.print(MSG_ACCOUNT_ACTION, new Object[] {"Deposit","successful",Bank.getBalance(accountNumber)});
-					}
-					catch(NoSuchAccountException | AccountClosedException e) {
+						ui.print(MSG_ACCOUNT_ACTION,
+								new Object[] { "Deposit", "successful", Bank.getBalance(accountNumber) });
+					} catch (NoSuchAccountException | AccountClosedException e) {
 						this.handleException(ui, e);
 
 					}
 					break;
-					
+
 				case 7:
-					//find account, withdraw money and print result
+					// find account, withdraw money and print result
 					try {
-						int accountNumber=ui.readInt(MSG_ACCOUNT_NUMBER);
+						int accountNumber = ui.readInt(MSG_ACCOUNT_NUMBER);
 						Bank.makeWithdrawal(accountNumber, ui.readDouble(MSG_AMOUNT));
-						ui.print(MSG_ACCOUNT_ACTION, new Object[] {"Withdrawal","successful",Bank.getBalance(accountNumber)});
-						
-					}
-					catch(NoSuchAccountException | InsufficientBalanceException e) {
+						ui.print(MSG_ACCOUNT_ACTION,
+								new Object[] { "Withdrawal", "successful", Bank.getBalance(accountNumber) });
+
+					} catch (NoSuchAccountException | InsufficientBalanceException e) {
 						this.handleException(ui, e);
 
 					}
 					break;
-					
 				case 8:
+					// currency conversion service
 					try {
-						String BUYING_CURRENCY=ui.readToken(MSG_BUYING_CURRENCY);
+						String BUYING_CURRENCY = ui.readToken(MSG_BUYING_CURRENCY);
 						double Amount = ui.readDouble(MSG_CURRENCY_AMOUNT);
-						String SELLING_CURRENCY=ui.readToken(MSG_SELLING_CURRENCY);
-						ui.print(MSG_CC_OUTPUT , Bank.currencyConversion(BUYING_CURRENCY,Amount,SELLING_CURRENCY));
-					}
-					catch(USDNotFoundException | ExchangeRateException e) {
+						String SELLING_CURRENCY = ui.readToken(MSG_SELLING_CURRENCY);
+						ui.print(MSG_CC_OUTPUT, Bank.currencyConversion(BUYING_CURRENCY, Amount, SELLING_CURRENCY));
+					} catch (USDNotFoundException | ExchangeRateException e) {
 						this.handleException(ui, e);
-
 					}
 					break;
 				case 9:
-					//find account and close it
+					// find account and close it
 					try {
-						int accountNumber=ui.readInt(MSG_ACCOUNT_NUMBER);
+						int accountNumber = ui.readInt(MSG_ACCOUNT_NUMBER);
 						Bank.closeAccount(accountNumber);
-						ui.print(MSG_ACCOUNT_CLOSED,
-								new Object[] { accountNumber, Bank.getBalance(accountNumber) });
-						
+						ui.print(MSG_ACCOUNT_CLOSED, new Object[] { accountNumber, Bank.getBalance(accountNumber) });
+
 					} catch (NoSuchAccountException e) {
 						this.handleException(ui, e);
-
 					}
 					break;
 				}
-
 			} while (option != menuOptions.length);
-
 		} catch (IOException e) {
 			e.printStackTrace();
-
 		}
 	}
 
-	
-	private  void handleException(UIManager ui, Exception e) throws IOException{
-		ui.print(e.getMessage(), new Object[] { });
+	private void handleException(UIManager ui, Exception e) throws IOException {
+		ui.print(e.getMessage(), new Object[] {});
 	}
-
-
 }
