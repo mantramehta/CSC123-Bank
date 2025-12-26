@@ -220,8 +220,8 @@ This project was developed as part of coursework. Starter code structure was pro
 
 **Mantra Mehta**
 - Recent MSCS Graduate
-- [GitHub Profile](https://github.com/yourusername)
-- [LinkedIn](https://linkedin.com/in/yourprofile)
+- [GitHub Profile](https://github.com/mantramehta)
+- [LinkedIn](https://www.linkedin.com/in/mantra-mehta/)
 
 ## 🙏 Acknowledgments
 
