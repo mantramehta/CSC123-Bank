@@ -13,6 +13,10 @@ import com.usman.csudh.util.UIManager;
 import com.usman.csudh.bank.core.Configuration;
 import com.usman.csudh.bank.core.CSVReader;
 
+/*
+@Author: Mantra Mehta
+ */
+
 public class MainBank {
 	// All messages are declared as constants to make it easier to change. Also, to
 	// ensure future proofing in case the application need to be made available
