@@ -44,7 +44,7 @@ public class Configuration{
 
 	public boolean useCurrencies() {
 		String x = configMap.get("support.currencies");
-		if(x.equalsIgnoreCase("true")) {
+		if(x != null && x.equalsIgnoreCase("true")) {
 			return true;
 		}
 		return false;

@@ -59,18 +59,23 @@ public class Bank {
 		if ((buyingCurrency.equals("USD") || sellingCurrency.equals("USD")) == false) {
 			throw new USDNotFoundException("Error: One of the currencies must be USD.\n\n");
 		}
-		if ((exchangeRates.containsKey(buyingCurrency) && exchangeRates.containsKey(sellingCurrency)) == false) {
+		
+		// USD is the base currency, so only the non-USD currency needs to be in the map
+		String nonUSDCurrency = sellingCurrency.equals("USD") ? buyingCurrency : sellingCurrency;
+		if (!exchangeRates.containsKey(nonUSDCurrency)) {
 			throw new ExchangeRateException("Error: the exchange rate is not found\n\n");
 		}
 
 		if (sellingCurrency.equals("USD")) {
+			// Selling USD, buying foreign currency: multiply by rate
 			ExchangeRate currency1 = exchangeRates.get(buyingCurrency);
 			Erate = currency1.getRate();
-			finalAmt = amount / Erate;
+			finalAmt = amount * Erate;
 		} else {
+			// Selling foreign currency, buying USD: divide by rate
 			ExchangeRate currency1 = exchangeRates.get(sellingCurrency);
 			Erate = currency1.getRate();
-			finalAmt = amount * Erate;
+			finalAmt = amount / Erate;
 		}
 
 		return new Object[] { Erate, buyingCurrency, finalAmt };
@@ -78,15 +83,18 @@ public class Bank {
 	}
 
 	public static double Rate(String Currency) {
-		if (Currency == "USD") {
+		if (Currency != null && Currency.equals("USD")) {
 			return 1;
 		}
 		ExchangeRate currency1 = exchangeRates.get(Currency);
+		if (currency1 == null) {
+			return 1; // Default to 1 if currency not found
+		}
 		double Erate = currency1.getRate();
 		return Erate;
 	}
 
-	public static void closeAccount(int accountNumber) throws NoSuchAccountException {
+	public static void closeAccount(int accountNumber) throws NoSuchAccountException, AccountClosedException {
 		lookup(accountNumber).close();
 	}
 

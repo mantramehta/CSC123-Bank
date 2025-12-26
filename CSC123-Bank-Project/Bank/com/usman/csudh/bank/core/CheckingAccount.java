@@ -16,7 +16,7 @@ public class CheckingAccount extends Account implements Serializable{
 	public  void withdraw(double amount) throws InsufficientBalanceException{
 
 		if (getBalance() + overdraftLimit - amount < 0) {
-			throw new InsufficientBalanceException("Not enough funds to cover withdrawal");
+			throw new InsufficientBalanceException("\nNot enough funds to cover withdrawal\n\n");
 		}
 
 		super.withdraw(amount);

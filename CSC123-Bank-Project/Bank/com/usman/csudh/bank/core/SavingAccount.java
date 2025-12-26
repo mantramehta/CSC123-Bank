@@ -10,7 +10,7 @@ public class SavingAccount extends Account{
 	//Withdrawals only allowed against positive balances 
 	public void withdraw(double amount) throws InsufficientBalanceException {
 		if (getBalance() - amount < 0) {
-			throw new InsufficientBalanceException("Not enough funds to cover withdrawal");
+			throw new InsufficientBalanceException("\nNot enough funds to cover withdrawal\n\n");
 
 		}
 		super.withdraw(amount);

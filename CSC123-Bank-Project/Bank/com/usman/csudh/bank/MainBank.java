@@ -191,7 +191,7 @@ public class MainBank {
 						Bank.closeAccount(accountNumber);
 						ui.print(MSG_ACCOUNT_CLOSED, new Object[] { accountNumber, Bank.getBalance(accountNumber) });
 
-					} catch (NoSuchAccountException e) {
+					} catch (NoSuchAccountException | AccountClosedException e) {
 						this.handleException(ui, e);
 					}
 					break;

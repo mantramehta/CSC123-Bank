@@ -29,8 +29,17 @@ public abstract class CSVReader {
 			BufferedReader br = new BufferedReader(new InputStreamReader(getInputStream()));
 			String line = br.readLine();
 			while (line != null) {
+				// Skip empty lines
+				if (line.trim().isEmpty()) {
+					line = br.readLine();
+					continue;
+				}
 				// split each line by comma
 				String[] parts = line.split(",");
+				if (parts.length < 3) {
+					line = br.readLine();
+					continue;
+				}
 				String currencyCode = parts[0].trim();
 				String currencyName = parts[1].trim();
 				// parse the exchange rate value as a Double

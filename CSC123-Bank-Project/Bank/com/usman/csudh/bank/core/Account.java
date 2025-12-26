@@ -73,7 +73,11 @@ public class Account implements Serializable {
 		transactions.add(new Transaction(Transaction.DEBIT,amount));
 	}
 	
-	public void close() {
+	public void close() throws AccountClosedException {
+		// Check if account has negative balance (overdraft) - only checking accounts can have this
+		if (getBalance() < 0 && accountName.equals("Checking")) {
+			throw new AccountClosedException("\nCannot close account with negative balance (overdraft). Please pay off the balance first.\n\n");
+		}
 		open=false;
 	}
 	
@@ -86,7 +90,8 @@ public class Account implements Serializable {
 	}
 
 	public String toString() {
-		String aName=accountNumber+"("+accountName+")"+" : "+accountHolder.toString()+ " : "+ Currency +" : "+getBalance()+" : "+ getBalance()*Bank.Rate(Currency)+ " : "+(open?"Account Open":"Account Closed");
+		double usdBalance = Currency.equals("USD") ? getBalance() : getBalance() / Bank.Rate(Currency);
+		String aName=accountNumber+"("+accountName+")"+" : "+accountHolder.toString()+ " : "+ Currency +" : "+getBalance()+" : "+ usdBalance + " : "+(open?"Account Open":"Account Closed");
 		return aName;
 	}
 	 
@@ -106,7 +111,8 @@ public class Account implements Serializable {
 	}
 	
 	public void printDetail(OutputStream out) throws IOException {
-		out.write(("\nAccount Number: "+accountNumber+"\n"+"Name: "+accountHolder.getFirstName()+" "+accountHolder.getLastName() +"\n"+"SSN: "+accountHolder.getSSN()+"\n"+"Currency: "+Currency+"\n"+"Currency Balance: "+getBalance()+"\n"+"USD Balance: "+ getBalance()*Bank.Rate(Currency)+"\n\n").getBytes());
+		double usdBalance = Currency.equals("USD") ? getBalance() : getBalance() / Bank.Rate(Currency);
+		out.write(("\nAccount Number: "+accountNumber+"\n"+"Name: "+accountHolder.getFirstName()+" "+accountHolder.getLastName() +"\n"+"SSN: "+accountHolder.getSSN()+"\n"+"Currency: "+Currency+"\n"+"Currency Balance: "+getBalance()+"\n"+"USD Balance: "+ usdBalance +"\n\n").getBytes());
 		out.flush();
 	}
 }

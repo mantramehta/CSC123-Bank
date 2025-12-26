@@ -1,0 +1,5 @@
+support.currencies=true
+currencies.source=rest
+currency.file=exchange_rates.csv
+webservice.url=https://raw.githubusercontent.com/mantramehta/CSC123-Bank/refs/heads/main/CSC123-Bank-Project/exchange_rates.csv
+rest.url=https://api.exchangerate-api.com/v4/latest/USD
