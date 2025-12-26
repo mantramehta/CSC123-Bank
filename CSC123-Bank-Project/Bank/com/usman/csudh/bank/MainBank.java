@@ -13,8 +13,15 @@ import com.usman.csudh.util.UIManager;
 import com.usman.csudh.bank.core.Configuration;
 import com.usman.csudh.bank.core.CSVReader;
 
-/*
-@Author: Mantra Mehta
+/**
+ * Banking Management System - Main Application Entry Point
+ * 
+ * @author Mantra Mehta
+ * @version 1.0
+ * 
+ * Note: Starter code structure provided by Professor Usman (CSUDH).
+ * All business logic, multi-currency implementation, REST API integration,
+ * and feature enhancements implemented by Mantra Mehta.
  */
 
 public class MainBank {
